@@ -29,7 +29,7 @@ public class FlightStep {
     @Given("the user navigates to website homepage using data from spreadsheet row {int}")
     public void theUserNavigatesToWebsiteHomepage(int row) throws IOException {
         // Instantiate driver and nagivate to website
-        System.setProperty("webdriver.chrome.driver", "src/test/java/java/Drivers/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "src/test/java/Drivers/chromedriver.exe");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.navigate().to("https://www.goibibo.com/");
