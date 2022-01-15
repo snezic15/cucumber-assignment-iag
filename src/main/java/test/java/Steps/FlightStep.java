@@ -76,7 +76,7 @@ public class FlightStep {
         driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
 
         if (!driver.findElement(By.id("gosuggest_inputSrc")).getAttribute("value").contains(g.getDepartureLocation()))
-            throw new GoibiboException("Incorrect Departure Location Selected", PATH, 1);
+            throw new GoibiboException("Departure location does not match dataset", PATH, 1);
 
         if (style == 3 && Integer.parseInt(g.getMultiExtra()) > 0) y = Integer.parseInt(g.getMultiExtra());
 
@@ -88,12 +88,12 @@ public class FlightStep {
             driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
 
             if (!driver.findElements(By.id("gosuggest_inputDest")).get(i).getAttribute("value").contains(g.getArrivalLocation(i)))
-                throw new GoibiboException("Incorrect Departure Location Selected", PATH, 1);
+                throw new GoibiboException("Arrival location " + (i + 1) + " does not match dataset", PATH, 1);
         }
     }
 
     @And("a departure and return date are selected")
-    public void aDepartureAndReturnDateAreSelected() {
+    public void aDepartureAndReturnDateAreSelected() throws IOException, GoibiboException {
         int diff, y = 0;
         String day, month, year;
         DateTimeFormatter mm = DateTimeFormatter.ofPattern("MM");
@@ -133,8 +133,9 @@ public class FlightStep {
             driver.findElement(By.id("fare_" + depFare)).click();
 
             d = LocalDate.parse(year + "-" + month + "-" + day);
-//            assertTrue(driver.findElements(By.id("departureCalendar")).get(i).getAttribute("value").contains(day +
-//                    " " + MMMM.format(d).substring(0, 3)));
+            if (!driver.findElements(By.id("departureCalendar")).get(i).getAttribute("value").contains(day +
+                    " " + MMMM.format(d).substring(0, 3)))
+                throw new GoibiboException("Departure date " + (i + 1) + " does not match dataset", PATH, 1);
         }
 
         if (style != 2) return;
@@ -157,27 +158,30 @@ public class FlightStep {
 
         MMMM = DateTimeFormatter.ofPattern("MMMM");
         d = LocalDate.parse(year + "-" + month + "-" + day);
-        //assertTrue(driver.findElement(By.id("returnCalendar")).getAttribute("value").contains(day + " " + MMMM
-        // .format(d).substring(0, 3)));
+        if (!driver.findElement(By.id("returnCalendar")).getAttribute("value").contains(day + " " + MMMM.format(d).substring(0, 3)))
+            throw new GoibiboException("Return date does not match dataset", PATH, 1);
     }
 
     @And("the user selects the number of travelers and travel class")
-    public void theUserSelectsTheNumberOfTravelersAndTravelClass() {
+    public void theUserSelectsTheNumberOfTravelersAndTravelClass() throws IOException, GoibiboException {
         // Select label
         driver.findElement(By.id("pax_label")).click();
 
         // Set traveller details
         driver.findElement(By.id("adultPaxBox")).clear();
         driver.findElement(By.id("adultPaxBox")).sendKeys(g.getAdults());
-        //assertTrue(driver.findElement(By.id("adultPaxBox")).getAttribute("value").contains(g.getAdults()));
+        if (!driver.findElement(By.id("adultPaxBox")).getAttribute("value").contains(g.getAdults()))
+            throw new GoibiboException("Number of adults does not match dataset", PATH, 1);
 
         driver.findElement(By.id("childPaxBox")).clear();
         driver.findElement(By.id("childPaxBox")).sendKeys(g.getChildren());
-        //assertTrue(driver.findElement(By.id("childPaxBox")).getAttribute("value").contains(g.getChildren()));
+        if (!driver.findElement(By.id("childPaxBox")).getAttribute("value").contains(g.getChildren()))
+            throw new GoibiboException("Number of children does not match dataset", PATH, 1);
 
         driver.findElement(By.id("infantPaxBox")).clear();
         driver.findElement(By.id("infantPaxBox")).sendKeys(g.getInfants());
-        //assertTrue(driver.findElement(By.id("infantPaxBox")).getAttribute("value").contains(g.getInfants()));
+        if (!driver.findElement(By.id("infantPaxBox")).getAttribute("value").contains(g.getInfants()))
+            throw new GoibiboException("Number of infants does not match dataset", PATH, 1);
 
         // Select option from dropdown that matches data and assert correct option has been selected
         Select s = new Select(driver.findElement(By.id("gi_class")));
@@ -189,7 +193,8 @@ public class FlightStep {
         }
 
         s.selectByIndex(i);
-        //assertTrue(s.getFirstSelectedOption().getText().equalsIgnoreCase(g.getClassType()));
+        if (!s.getFirstSelectedOption().getText().equalsIgnoreCase(g.getClassType()))
+            throw new GoibiboException("Flight class does not match dataset", PATH, 1);
     }
 
     @And("the user selects the Search button")
@@ -199,27 +204,23 @@ public class FlightStep {
     }
 
     @Then("the flight selection page should be displayed")
-    public void theFlightSelectionPageShouldBeDisplayed() {
+    public void theFlightSelectionPageShouldBeDisplayed() throws IOException, GoibiboException, InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
         if (style == 3) {
-            try {
-                //assertFalse(driver.getPageSource().contains("Sorry, we could not find any flights for this route"));
-                wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("orange")));
-                driver.findElement(By.className("orange")).click();
-                Thread.sleep(5000);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
+                throw new GoibiboException("No flight results", PATH, 1);
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("orange")));
+            driver.findElement(By.className("orange")).click();
+            Thread.sleep(5000);
         }
 
         else {
-            try {
-                //assertFalse(driver.getPageSource().contains("Sorry, we could not find any flights for this route"));
-                driver.findElements(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")).get(0).click();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
+                throw new GoibiboException("No flight results", PATH, 1);
+
+            driver.findElements(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")).get(0).click();
         }
     }
 }
