@@ -1,6 +1,8 @@
 package Steps;
 
 
+import Pages.Goibibo;
+import Utility.GoibiboException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -11,8 +13,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import test.java.Pages.Goibibo;
-import test.java.Utility.GoibiboException;
 
 import java.io.IOException;
 import java.time.Duration;
