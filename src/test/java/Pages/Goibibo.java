@@ -41,7 +41,7 @@ public class Goibibo {
         departureLocation = workbook.get(row).get("From");
         arrivalLocation = workbook.get(row).get("Destination");
         departureDate = workbook.get(row).get("Departure Date");
-        returnDate = workbook.get(row).get("Arrival Date");
+        returnDate = workbook.get(row).get("Return Date");
         adults = workbook.get(row).get("Adults");
         children = workbook.get(row).get("Children");
         infants = workbook.get(row).get("Infants");

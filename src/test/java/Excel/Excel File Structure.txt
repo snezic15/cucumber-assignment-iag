@@ -1,0 +1,16 @@
+Flight Type: 'Oneway', 'Return', 'Multi'
+Extra Paths (used for Multi only): 1-3
+From: Departure airport name 
+Destination: Arrival airport name
+Departure Date: Date to depart in ddMMyyyy format
+Return Date (used for Return only): Date to return in ddMMyyyy format
+Adults: 1-9
+Children: 1-9
+Infants: 1-9
+Class: 'Economy', 'First Class', 'Business', 'Premium Economy'
+Multi Destination (used for Multi & when extra paths >= 1): Second departure airport name 
+Multi Destination Date (used for Multi & when extra paths >= 1): Second date to depart in ddMMyyyy format
+Multi Destination 2 (used for Multi & when extra paths >= 2): Third departure airport name 
+Multi Destination Date 2 (used for Multi & when extra paths >= 2): Third date to depart in ddMMyyyy format
+Multi Destination 3 (used for Multi & when extra paths >= 3): Forth departure airport name 
+Multi Destination Date 3 (used for Multi & when extra paths >= 3): Forth date to depart in ddMMyyyy format
