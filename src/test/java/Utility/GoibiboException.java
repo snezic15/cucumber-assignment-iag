@@ -11,10 +11,8 @@ public class GoibiboException extends Exception {
 
     private void printErrorDoc(String path, int row, String msg) throws IOException {
         ExcelReader reader = new ExcelReader();
-        int[] cellA = {row, 0};
-        int[] cellB = {row, 1};
+        int[] cell = {row, 0, 1};
 
-        reader.setData(path, "Output", "Y", cellA);
-        reader.setData(path, "Output", msg, cellB);
+        reader.setData(path, "Output", "Y", msg, cell);
     }
 }

@@ -15,39 +15,30 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.NumberToTextConverter;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelReader {
     public List<Map<String, String>> getData(String excelFilePath, String sheetName) throws IOException {
-        Sheet sheet = getSheetByName(excelFilePath, sheetName);
+        Sheet sheet = WorkbookFactory.create(new File(excelFilePath)).getSheet(sheetName);
         return readSheet(sheet);
     }
 
-    public List<Map<String, String>> getData(String excelFilePath, int sheetNumber) throws IOException {
-        Sheet sheet = getSheetByIndex(excelFilePath, sheetNumber);
-        return readSheet(sheet);
-    }
+    public void setData(String excelFilePath, String sheetName, String key, String value, int[] c) throws IOException {
+        FileInputStream inputStream = new FileInputStream(excelFilePath);
+        Workbook workbook = WorkbookFactory.create(inputStream);
+        Sheet sheet = workbook.getSheet(sheetName);
 
-    public void setData(String excelFilePath, String sheetName, String content, int[] cell) throws IOException {
-        Workbook w = new XSSFWorkbook(new FileInputStream(excelFilePath));
-        Sheet sheet = w.getSheet(sheetName);
-        sheet.createRow(cell[0]).createCell(cell[1]).setCellValue(content);
+        Row row = sheet.createRow(c[0]);
+        Cell cell = row.createCell(c[1]);
+        cell.setCellValue(key);
+        cell = row.createCell(c[2]);
+        cell.setCellValue(value);
 
-        FileOutputStream output =new FileOutputStream(excelFilePath);
-        w.write(output);
-        w.close();
-    }
+        inputStream.close();
 
-    private Sheet getSheetByName(String excelFilePath, String sheetName) throws IOException {
-        return getWorkBook(excelFilePath).getSheet(sheetName);
-    }
-
-    private Sheet getSheetByIndex(String excelFilePath, int sheetNumber) throws IOException {
-        return getWorkBook(excelFilePath).getSheetAt(sheetNumber);
-    }
-
-    private Workbook getWorkBook(String excelFilePath) throws IOException {
-        return WorkbookFactory.create(new File(excelFilePath));
+        FileOutputStream os = new FileOutputStream(excelFilePath);
+        workbook.write(os);
+        workbook.close();
+        os.close();
     }
 
     private List<Map<String, String>> readSheet(Sheet sheet) {

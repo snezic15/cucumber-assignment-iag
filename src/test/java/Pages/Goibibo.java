@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Goibibo {
+    //Page elements
     private final String flightType;
     private final String multiExtra;
     private final String departureLocation;
@@ -28,14 +29,15 @@ public class Goibibo {
         List<Map<String, String>> workbook = reader.getData(path, "Input");
 
         //Test print
-        System.out.println("***Begin test dump");
-        for (Map<String, String> map : workbook) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                System.out.println(entry.getKey() + " - " + entry.getValue());
-            }
-        }
-        System.out.println("End test dump***");
+//        System.out.println("***Begin test dump");
+//        for (Map<String, String> map : workbook) {
+//            for (Map.Entry<String, String> entry : map.entrySet()) {
+//                System.out.println(entry.getKey() + " - " + entry.getValue());
+//            }
+//        }
+//        System.out.println("End test dump***");
 
+        //Set variables from excel doc
         flightType = workbook.get(row).get("Flight Type");
         multiExtra = workbook.get(row).get("Extra Paths");
         departureLocation = workbook.get(row).get("From");
@@ -54,6 +56,7 @@ public class Goibibo {
         departureDate4 = workbook.get(row).get("Multi Destination Date 3");
     }
 
+    //Getters
     public String getFlightType() {
         return flightType;
     }

@@ -1,6 +1,7 @@
 package Steps;
 
 import Pages.Goibibo;
+import Utility.ExcelReader;
 import Utility.GoibiboException;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -19,11 +20,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class FlightStep {
-    // Variables for WebDriver, Goibibo website class, and automation type
-    private static final String PATH = "src/test/java/Excel/FlightData.xlsx";
+    // Variables for WebDriver, Goibibo website class, row, and automation type
+    private final String PATH = "src/test/java/Excel/FlightData.xlsx";
     public static WebDriver driver = null;
     private Goibibo g;
     private int style;
+    private int row;
 
     @Given("the user navigates to website homepage using data from spreadsheet row {int}")
     public void theUserNavigatesToWebsiteHomepage(int row) throws IOException {
@@ -42,11 +44,12 @@ public class FlightStep {
 
         // Instantiate Goibibo website class for page elements
         g = new Goibibo(PATH, row);
+        this.row = row + 1;
     }
 
     @And("an option from is selected for One-Way, Roundtrip or Multi-City")
     public void anOptionFromIsSelectedForOneWayOrRoundtrip() {
-        // Check flight type, set accordingly as it effects steps required
+        // Different cases for flight type
         switch (g.getFlightType()) {
             case "Oneway":
                 driver.findElement(By.id("oneway")).click();
@@ -75,7 +78,7 @@ public class FlightStep {
         driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
 
         if (!driver.findElement(By.id("gosuggest_inputSrc")).getAttribute("value").contains(g.getDepartureLocation()))
-            throw new GoibiboException("Departure location does not match dataset", PATH, 1);
+            throw new GoibiboException("Departure location does not match dataset", PATH, row);
 
         if (style == 3 && Integer.parseInt(g.getMultiExtra()) > 0) y = Integer.parseInt(g.getMultiExtra());
 
@@ -87,7 +90,7 @@ public class FlightStep {
             driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
 
             if (!driver.findElements(By.id("gosuggest_inputDest")).get(i).getAttribute("value").contains(g.getArrivalLocation(i)))
-                throw new GoibiboException("Arrival location " + (i + 1) + " does not match dataset", PATH, 1);
+                throw new GoibiboException("Arrival location " + (i + 1) + " does not match dataset", PATH, row);
         }
     }
 
@@ -134,7 +137,7 @@ public class FlightStep {
             d = LocalDate.parse(year + "-" + month + "-" + day);
             if (!driver.findElements(By.id("departureCalendar")).get(i).getAttribute("value").contains(day +
                     " " + MMMM.format(d).substring(0, 3)))
-                throw new GoibiboException("Departure date " + (i + 1) + " does not match dataset", PATH, 1);
+                throw new GoibiboException("Departure date " + (i + 1) + " does not match dataset", PATH, row);
         }
 
         if (style != 2) return;
@@ -158,47 +161,45 @@ public class FlightStep {
         MMMM = DateTimeFormatter.ofPattern("MMMM");
         d = LocalDate.parse(year + "-" + month + "-" + day);
         if (!driver.findElement(By.id("returnCalendar")).getAttribute("value").contains(day + " " + MMMM.format(d).substring(0, 3)))
-            throw new GoibiboException("Return date does not match dataset", PATH, 1);
+            throw new GoibiboException("Return date does not match dataset", PATH, row);
     }
 
     @And("the user selects the number of travelers and travel class")
     public void theUserSelectsTheNumberOfTravelersAndTravelClass() throws IOException, GoibiboException {
-        // Select label
         driver.findElement(By.id("pax_label")).click();
 
         // Set traveller details
         driver.findElement(By.id("adultPaxBox")).clear();
         driver.findElement(By.id("adultPaxBox")).sendKeys(g.getAdults());
         if (!driver.findElement(By.id("adultPaxBox")).getAttribute("value").contains(g.getAdults()))
-            throw new GoibiboException("Number of adults does not match dataset", PATH, 1);
+            throw new GoibiboException("Number of adults does not match dataset", PATH, row);
 
         driver.findElement(By.id("childPaxBox")).clear();
         driver.findElement(By.id("childPaxBox")).sendKeys(g.getChildren());
         if (!driver.findElement(By.id("childPaxBox")).getAttribute("value").contains(g.getChildren()))
-            throw new GoibiboException("Number of children does not match dataset", PATH, 1);
+            throw new GoibiboException("Number of children does not match dataset", PATH, row);
 
         driver.findElement(By.id("infantPaxBox")).clear();
         driver.findElement(By.id("infantPaxBox")).sendKeys(g.getInfants());
         if (!driver.findElement(By.id("infantPaxBox")).getAttribute("value").contains(g.getInfants()))
-            throw new GoibiboException("Number of infants does not match dataset", PATH, 1);
+            throw new GoibiboException("Number of infants does not match dataset", PATH, row);
 
         // Select option from dropdown that matches data and assert correct option has been selected
         Select s = new Select(driver.findElement(By.id("gi_class")));
         int i = 0;
         for (WebElement option : s.getOptions()) {
-            if (option.getText().equalsIgnoreCase(g.getClassType()))
-                break;
+            if (option.getText().equalsIgnoreCase(g.getClassType())) break;
             i++;
         }
 
         s.selectByIndex(i);
         if (!s.getFirstSelectedOption().getText().equalsIgnoreCase(g.getClassType()))
-            throw new GoibiboException("Flight class does not match dataset", PATH, 1);
+            throw new GoibiboException("Flight class does not match dataset", PATH, row);
     }
 
     @And("the user selects the Search button")
     public void theUserSelectsTheSearchButton() {
-        // Press search
+        // Search
         driver.findElement(By.id("gi_search_btn")).click();
     }
 
@@ -206,9 +207,10 @@ public class FlightStep {
     public void theFlightSelectionPageShouldBeDisplayed() throws IOException, GoibiboException, InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
+        // Check for available flights. Select 'Book' button (different element ID for Multi and Oneway/Return types)
         if (style == 3) {
             if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
-                throw new GoibiboException("No flight results", PATH, 1);
+                throw new GoibiboException("No flight results", PATH, row);
 
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("orange")));
             driver.findElement(By.className("orange")).click();
@@ -217,9 +219,14 @@ public class FlightStep {
 
         else {
             if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
-                throw new GoibiboException("No flight results", PATH, 1);
+                throw new GoibiboException("No flight results", PATH, row);
 
             driver.findElements(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")).get(0).click();
+
+            // Once reached the end, print 'N' in Excel doc
+            ExcelReader ex = new ExcelReader();
+            int[] c = {row, 0, 1};
+            ex.setData(PATH, "Output", "N", "", c);
         }
     }
 }
