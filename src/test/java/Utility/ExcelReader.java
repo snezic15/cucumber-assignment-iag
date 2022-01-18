@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -26,12 +25,13 @@ public class ExcelReader {
         FileInputStream inputStream = new FileInputStream(excelFilePath);
         Workbook workbook = WorkbookFactory.create(inputStream);
         Sheet sheet = workbook.getSheet(sheetName);
+        String timeStamp = new SimpleDateFormat("dd/MM/yyyy h:mm:ss a").format(new Date());
 
         Row row = sheet.createRow(c[0]);
         Cell cell = row.createCell(c[1]);
         cell.setCellValue(key);
         cell = row.createCell(c[2]);
-        cell.setCellValue(value);
+        cell.setCellValue(timeStamp + " - " + value);
 
         inputStream.close();
 

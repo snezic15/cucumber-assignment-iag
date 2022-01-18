@@ -14,10 +14,12 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class FlightStep {
     // Variables for WebDriver, Goibibo website class, row, and automation type
@@ -236,4 +238,4 @@ public class FlightStep {
     }
 }
 
-//Excel sheet export report
+//Excel sheet: booking page add-ons displayed
