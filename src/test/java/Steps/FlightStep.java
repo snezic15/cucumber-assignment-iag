@@ -109,16 +109,16 @@ public class FlightStep {
         for (int i = 0; i <= y; i++) {
             driver.findElements(By.id("departureCalendar")).get(i).click();
 
-            day = g.getDepatureDate(i).substring(0, 2);
-            month = g.getDepatureDate(i).substring(2, 4);
-            year = g.getDepatureDate(i).substring(4);
+            day = g.getDepartureDate(i).substring(0, 2);
+            month = g.getDepartureDate(i).substring(2, 4);
+            year = g.getDepartureDate(i).substring(4);
             String depFare =
-                    g.getDepatureDate(i).substring(4) + g.getDepatureDate(i).substring(2, 4) + g.getDepatureDate(i).substring(0, 2);
+                    g.getDepartureDate(i).substring(4) + g.getDepartureDate(i).substring(2, 4) + g.getDepartureDate(i).substring(0, 2);
 
             if (i > 0) {
-                diff = Integer.parseInt(month) - Integer.parseInt(g.getDepatureDate(i-1).substring(2, 4));
-                diff = Integer.parseInt(year) > Integer.parseInt(g.getDepatureDate(i-1).substring(4)) ?
-                        diff + (12 * (Integer.parseInt(year) - Integer.parseInt(g.getDepatureDate(i-1).substring(4)))) : diff;
+                diff = Integer.parseInt(month) - Integer.parseInt(g.getDepartureDate(i-1).substring(2, 4));
+                diff = Integer.parseInt(year) > Integer.parseInt(g.getDepartureDate(i-1).substring(4)) ?
+                        diff + (12 * (Integer.parseInt(year) - Integer.parseInt(g.getDepartureDate(i-1).substring(4)))) : diff;
             }
 
             else {
@@ -147,8 +147,9 @@ public class FlightStep {
         year = g.getReturnDate().substring(4);
         String retFare = g.getReturnDate().substring(4) + g.getReturnDate().substring(2, 4) + g.getReturnDate().substring(0, 2);
 
-        diff = Integer.parseInt(month) - Integer.parseInt(mm.format(now));
-        diff = Integer.parseInt(year) > Integer.parseInt(yy.format(now)) ? diff + (12 * (Integer.parseInt(year) - Integer.parseInt(yy.format(now)))) : diff;
+        diff = Integer.parseInt(month) - Integer.parseInt(g.getDepartureDate(0).substring(2, 4));
+        diff = Integer.parseInt(year) > Integer.parseInt(g.getDepartureDate(0).substring(4)) ?
+                diff + (12 * (Integer.parseInt(year) - Integer.parseInt(g.getDepartureDate(0).substring(4)))) : diff;
 
         if (diff != 0) {
             for (int i = 0; i < diff; i++) {

@@ -4,6 +4,9 @@ import Utility.ExcelReader;
 import Utility.GoibiboException;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -13,6 +16,7 @@ public class Goibibo {
     //Page elements
     private final List<Map<String, String>> workbook;
     private final int row;
+    private final int excelRow;
     private final String path;
 
     public Goibibo(String path, int row) throws IOException {
@@ -20,6 +24,7 @@ public class Goibibo {
         workbook = reader.getData(path, "Input");
         this.row = row;
         this.path = path;
+        excelRow = row + 1;
 
         //Test print
 //        System.out.println("***Begin test dump");
@@ -39,7 +44,7 @@ public class Goibibo {
     public String getMultiExtra() throws GoibiboException, IOException {
         String temp = checkNum(workbook.get(row).get("Extra Paths"));
         if (Integer.parseInt(temp) > 0 && Integer.parseInt(temp) < 4) return temp;
-        else throw new GoibiboException("Invalid number of paths (should be between 1-3)", path, row);
+        else throw new GoibiboException("Invalid number of paths (should be between 1-3)", path, excelRow);
     }
 
     public String getDepartureLocation() throws GoibiboException, IOException {
@@ -55,54 +60,54 @@ public class Goibibo {
         }
     }
 
-    public String getDepatureDate(int x) throws GoibiboException, IOException {
+    public String getDepartureDate(int x) throws GoibiboException, IOException {
         String temp;
 
         switch (x) {
             case 1:
-                temp = checkNum(workbook.get(row).get("Multi Destination Date"));
+                temp = checkDate(checkNum(workbook.get(row).get("Multi Destination Date")));
                 if (temp.length() == 8) return temp;
-                else throw new GoibiboException("Invalid departure date (2nd)", path, row);
+                else throw new GoibiboException("Invalid departure date (2nd entry)", path, excelRow);
 
             case 2:
-                temp = checkNum(workbook.get(row).get("Multi Destination Date 2"));
+                temp = checkDate(checkNum(workbook.get(row).get("Multi Destination Date 2")));
                 if (temp.length() == 8) return temp;
-                else throw new GoibiboException("Invalid departure date (3rd)", path, row);
+                else throw new GoibiboException("Invalid departure date (3rd entry)", path, excelRow);
 
             case 3:
-                temp = checkNum(workbook.get(row).get("Multi Destination Date 3"));
+                temp = checkDate(checkNum(workbook.get(row).get("Multi Destination Date 3")));
                 if (temp.length() == 8) return temp;
-                else throw new GoibiboException("Invalid departure date (4th)", path, row);
+                else throw new GoibiboException("Invalid departure date (4th entry)", path, excelRow);
 
             default:
-                temp = checkNum(workbook.get(row).get("Departure Date"));
+                temp = checkDate(checkNum(workbook.get(row).get("Departure Date")));
                 if (temp.length() == 8) return temp;
-                else throw new GoibiboException("Invalid departure date (1st)", path, row);
+                else throw new GoibiboException("Invalid departure date (1st entry)", path, excelRow);
         }
     }
 
     public String getReturnDate() throws GoibiboException, IOException {
         String temp = checkNum(workbook.get(row).get("Return Date"));
         if (temp.length() == 8) return temp;
-        else throw new GoibiboException("Invalid return date", path, row);
+        else throw new GoibiboException("Invalid return date", path, excelRow);
     }
 
     public String getAdults() throws GoibiboException, IOException {
         String temp = checkNum(workbook.get(row).get("Adults"));
         if (Integer.parseInt(temp) > 0 && Integer.parseInt(temp) < 10) return temp;
-        else throw new GoibiboException("Invalid number of adults", path, row);
+        else throw new GoibiboException("Invalid number of adults", path, excelRow);
     }
 
     public String getChildren() throws GoibiboException, IOException {
         String temp = checkNum(workbook.get(row).get("Children"));
         if (Integer.parseInt(temp) >= 0 && Integer.parseInt(temp) < 10) return temp;
-        else throw new GoibiboException("Invalid number of children", path, row);
+        else throw new GoibiboException("Invalid number of children", path, excelRow);
     }
 
     public String getInfants() throws GoibiboException, IOException {
         String temp = checkNum(workbook.get(row).get("Infants"));
         if (Integer.parseInt(temp) >= 0 && Integer.parseInt(temp) < 10) return temp;
-        else throw new GoibiboException("Invalid number of infants", path, row);
+        else throw new GoibiboException("Invalid number of infants", path, excelRow);
     }
 
     public String getClassType() throws GoibiboException, IOException {
@@ -110,18 +115,24 @@ public class Goibibo {
     }
 
     private String checkNum(String s) throws IOException, GoibiboException {
-        Pattern p = Pattern.compile("[0-9]");
-        Matcher m = p.matcher(s);
-
-        if (m.find()) return s;
-        else throw new GoibiboException("Input contains invalid characters", path, row);
+        if (Pattern.matches("^[0-9]*$", s)) return s;
+        else throw new GoibiboException("Input contains non-numerical characters", path, excelRow);
     }
 
     private String checkLetter(String s) throws IOException, GoibiboException {
-        Pattern p = Pattern.compile("[a-zA-z]");
-        Matcher m = p.matcher(s);
+        if (Pattern.matches("^[a-zA-Z ]*$", s)) return s;
+        else throw new GoibiboException("Input contains non-alphabetical characters", path, excelRow);
+    }
 
-        if (m.find()) return s;
-        else throw new GoibiboException("Input contains invalid characters", path, row);
+    private String checkDate(String s) throws IOException, GoibiboException {
+        try {
+            DateFormat d = new SimpleDateFormat("ddMMyyyy");
+            d.setLenient(false);
+            d.parse(s);
+            return s;
+        }
+        catch (ParseException e) {
+            throw new GoibiboException("Date is not a valid format", path, excelRow);
+        }
     }
 }
