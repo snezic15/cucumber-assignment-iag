@@ -29,13 +29,13 @@ public class FlightStep {
 
     @Given("the user navigates to website homepage using data from spreadsheet row {int}")
     public void theUserNavigatesToWebsiteHomepage(int row) throws IOException {
-        // Instantiate driver and nagivate to website
+        // Instantiate driver and navigate to website
         System.setProperty("webdriver.chrome.driver", "src/test/java/Drivers/chromedriver.exe");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.navigate().to("https://www.goibibo.com/");
 
-        // Website has two variants that completely change the layout/element ID's. Seems to be a coinflip which
+        // Website has two variants that completely change the layout/element ID's. Seems to be a coin-flip which
         // version loads by default so keep restarting scenario until the variant chosen to automate loads
         if (!driver.getPageSource().contains("FlightHomeOldWidget")) {
             driver.quit();
@@ -48,7 +48,7 @@ public class FlightStep {
     }
 
     @And("an option from is selected for One-Way, Roundtrip or Multi-City")
-    public void anOptionFromIsSelectedForOneWayOrRoundtrip() {
+    public void anOptionFromIsSelectedForOneWayOrRoundtrip() throws GoibiboException, IOException {
         // Different cases for flight type
         switch (g.getFlightType()) {
             case "Oneway":
@@ -198,9 +198,12 @@ public class FlightStep {
     }
 
     @And("the user selects the Search button")
-    public void theUserSelectsTheSearchButton() {
+    public void theUserSelectsTheSearchButton() throws IOException, GoibiboException {
         // Search
         driver.findElement(By.id("gi_search_btn")).click();
+
+        if (driver.getPageSource().contains("Please enter a valid"))
+            throw new GoibiboException("All inputs are not filled adequately", PATH, row);
     }
 
     @Then("the flight selection page should be displayed")
@@ -214,7 +217,6 @@ public class FlightStep {
 
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("orange")));
             driver.findElement(By.className("orange")).click();
-            Thread.sleep(5000);
         }
 
         else {
@@ -222,11 +224,15 @@ public class FlightStep {
                 throw new GoibiboException("No flight results", PATH, row);
 
             driver.findElements(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")).get(0).click();
-
-            // Once reached the end, print 'N' in Excel doc
-            ExcelReader ex = new ExcelReader();
-            int[] c = {row, 0, 1};
-            ex.setData(PATH, "Output", "N", "", c);
         }
+
+        Thread.sleep(5000);
+
+        // Once reached the end, print 'N' in Excel doc
+        ExcelReader ex = new ExcelReader();
+        int[] c = {row, 0, 1};
+        ex.setData(PATH, "Output", "N", "", c);
     }
 }
+
+//Excel sheet export report

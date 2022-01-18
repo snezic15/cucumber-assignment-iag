@@ -1,32 +1,25 @@
 package Pages;
 
 import Utility.ExcelReader;
+import Utility.GoibiboException;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Goibibo {
     //Page elements
-    private final String flightType;
-    private final String multiExtra;
-    private final String departureLocation;
-    private final String arrivalLocation;
-    private final String departureDate;
-    private final String returnDate;
-    private final String adults;
-    private final String children;
-    private final String infants;
-    private final String classType;
-    private final String arrivalLocation2;
-    private final String departureDate2;
-    private final String arrivalLocation3;
-    private final String departureDate3;
-    private final String arrivalLocation4;
-    private final String departureDate4;
+    private final List<Map<String, String>> workbook;
+    private final int row;
+    private final String path;
 
     public Goibibo(String path, int row) throws IOException {
         ExcelReader reader = new ExcelReader();
-        List<Map<String, String>> workbook = reader.getData(path, "Input");
+        workbook = reader.getData(path, "Input");
+        this.row = row;
+        this.path = path;
 
         //Test print
 //        System.out.println("***Begin test dump");
@@ -36,74 +29,99 @@ public class Goibibo {
 //            }
 //        }
 //        System.out.println("End test dump***");
-
-        //Set variables from excel doc
-        flightType = workbook.get(row).get("Flight Type");
-        multiExtra = workbook.get(row).get("Extra Paths");
-        departureLocation = workbook.get(row).get("From");
-        arrivalLocation = workbook.get(row).get("Destination");
-        departureDate = workbook.get(row).get("Departure Date");
-        returnDate = workbook.get(row).get("Return Date");
-        adults = workbook.get(row).get("Adults");
-        children = workbook.get(row).get("Children");
-        infants = workbook.get(row).get("Infants");
-        classType = workbook.get(row).get("Class");
-        arrivalLocation2 = workbook.get(row).get("Multi Destination");
-        departureDate2 = workbook.get(row).get("Multi Destination Date");
-        arrivalLocation3 = workbook.get(row).get("Multi Destination 2");
-        departureDate3 = workbook.get(row).get("Multi Destination Date 2");
-        arrivalLocation4 = workbook.get(row).get("Multi Destination 3");
-        departureDate4 = workbook.get(row).get("Multi Destination Date 3");
     }
 
     //Getters
-    public String getFlightType() {
-        return flightType;
+    public String getFlightType() throws GoibiboException, IOException {
+        return checkLetter(workbook.get(row).get("Flight Type"));
     }
 
-    public String getMultiExtra() {
-        return multiExtra;
+    public String getMultiExtra() throws GoibiboException, IOException {
+        String temp = checkNum(workbook.get(row).get("Extra Paths"));
+        if (Integer.parseInt(temp) > 0 && Integer.parseInt(temp) < 4) return temp;
+        else throw new GoibiboException("Invalid number of paths (should be between 1-3)", path, row);
     }
 
-    public String getDepartureLocation() {
-        return departureLocation;
+    public String getDepartureLocation() throws GoibiboException, IOException {
+        return checkLetter(workbook.get(row).get("From"));
     }
 
-    public String getArrivalLocation(int x) {
+    public String getArrivalLocation(int x) throws GoibiboException, IOException {
         switch (x) {
-            case 1: return arrivalLocation2;
-            case 2: return arrivalLocation3;
-            case 3: return arrivalLocation4;
-            default: return arrivalLocation;
+            case 1: return checkLetter(workbook.get(row).get("Multi Destination"));
+            case 2: return checkLetter(workbook.get(row).get("Multi Destination 2"));
+            case 3: return checkLetter(workbook.get(row).get("Multi Destination 3"));
+            default: return checkLetter(workbook.get(row).get("Destination"));
         }
     }
 
-    public String getDepatureDate(int x) {
+    public String getDepatureDate(int x) throws GoibiboException, IOException {
+        String temp;
+
         switch (x) {
-            case 1: return departureDate2;
-            case 2: return departureDate3;
-            case 3: return departureDate4;
-            default: return departureDate;
+            case 1:
+                temp = checkNum(workbook.get(row).get("Multi Destination Date"));
+                if (temp.length() == 8) return temp;
+                else throw new GoibiboException("Invalid departure date (2nd)", path, row);
+
+            case 2:
+                temp = checkNum(workbook.get(row).get("Multi Destination Date 2"));
+                if (temp.length() == 8) return temp;
+                else throw new GoibiboException("Invalid departure date (3rd)", path, row);
+
+            case 3:
+                temp = checkNum(workbook.get(row).get("Multi Destination Date 3"));
+                if (temp.length() == 8) return temp;
+                else throw new GoibiboException("Invalid departure date (4th)", path, row);
+
+            default:
+                temp = checkNum(workbook.get(row).get("Departure Date"));
+                if (temp.length() == 8) return temp;
+                else throw new GoibiboException("Invalid departure date (1st)", path, row);
         }
     }
 
-    public String getReturnDate() {
-        return returnDate;
+    public String getReturnDate() throws GoibiboException, IOException {
+        String temp = checkNum(workbook.get(row).get("Return Date"));
+        if (temp.length() == 8) return temp;
+        else throw new GoibiboException("Invalid return date", path, row);
     }
 
-    public String getAdults() {
-        return adults;
+    public String getAdults() throws GoibiboException, IOException {
+        String temp = checkNum(workbook.get(row).get("Adults"));
+        if (Integer.parseInt(temp) > 0 && Integer.parseInt(temp) < 10) return temp;
+        else throw new GoibiboException("Invalid number of adults", path, row);
     }
 
-    public String getChildren() {
-        return children;
+    public String getChildren() throws GoibiboException, IOException {
+        String temp = checkNum(workbook.get(row).get("Children"));
+        if (Integer.parseInt(temp) >= 0 && Integer.parseInt(temp) < 10) return temp;
+        else throw new GoibiboException("Invalid number of children", path, row);
     }
 
-    public String getInfants() {
-        return infants;
+    public String getInfants() throws GoibiboException, IOException {
+        String temp = checkNum(workbook.get(row).get("Infants"));
+        if (Integer.parseInt(temp) >= 0 && Integer.parseInt(temp) < 10) return temp;
+        else throw new GoibiboException("Invalid number of infants", path, row);
     }
 
-    public String getClassType() {
-        return classType;
+    public String getClassType() throws GoibiboException, IOException {
+        return checkLetter(workbook.get(row).get("Class"));
+    }
+
+    private String checkNum(String s) throws IOException, GoibiboException {
+        Pattern p = Pattern.compile("[0-9]");
+        Matcher m = p.matcher(s);
+
+        if (m.find()) return s;
+        else throw new GoibiboException("Input contains invalid characters", path, row);
+    }
+
+    private String checkLetter(String s) throws IOException, GoibiboException {
+        Pattern p = Pattern.compile("[a-zA-z]");
+        Matcher m = p.matcher(s);
+
+        if (m.find()) return s;
+        else throw new GoibiboException("Input contains invalid characters", path, row);
     }
 }
