@@ -21,17 +21,67 @@ public class ExcelReader {
         return readSheet(sheet);
     }
 
-    public void setData(String excelFilePath, String sheetName, String key, String value, int[] c) throws IOException {
+    public void setData(String excelFilePath, String sheetName, String key, String value, int row) throws IOException {
+        //For error printing
         FileInputStream inputStream = new FileInputStream(excelFilePath);
         Workbook workbook = WorkbookFactory.create(inputStream);
         Sheet sheet = workbook.getSheet(sheetName);
-        String timeStamp = new SimpleDateFormat("dd/MM/yyyy h:mm:ss a").format(new Date());
+        Row r = sheet.createRow(row);
 
-        Row row = sheet.createRow(c[0]);
-        Cell cell = row.createCell(c[1]);
+        //Timestamp
+        Cell cell = r.createCell(0);
+        cell.setCellValue(new SimpleDateFormat("dd/MM/yyyy h:mm:ss a").format(new Date()));
+
+        //Key
+        cell = r.createCell(1);
         cell.setCellValue(key);
-        cell = row.createCell(c[2]);
-        cell.setCellValue(timeStamp + " - " + value);
+
+        //Value (error)
+        cell = r.createCell(2);
+        cell.setCellValue(value);
+
+        inputStream.close();
+
+        FileOutputStream os = new FileOutputStream(excelFilePath);
+        workbook.write(os);
+        workbook.close();
+        os.close();
+    }
+
+    public void setData(String excelFilePath, String sheetName, String key, String value, int row, String[] ar) throws IOException {
+        //For successful scenario
+        FileInputStream inputStream = new FileInputStream(excelFilePath);
+        Workbook workbook = WorkbookFactory.create(inputStream);
+        Sheet sheet = workbook.getSheet(sheetName);
+        Row r = sheet.createRow(row);
+
+        //Timestamp
+        Cell cell = r.createCell(0);
+        cell.setCellValue(new SimpleDateFormat("dd/MM/yyyy h:mm:ss a").format(new Date()));
+
+        //Key
+        cell = r.createCell(1);
+        cell.setCellValue(key);
+
+        //Value (N/A for successful scenario)
+        cell = r.createCell(2);
+        cell.setCellValue(value);
+
+        //Base Fare
+        cell = r.createCell(3);
+        cell.setCellValue(ar[0]);
+
+        //Surcharge
+        cell = r.createCell(4);
+        cell.setCellValue(ar[1]);
+
+        //Addons
+        cell = r.createCell(5);
+        cell.setCellValue(ar[2]);
+
+        //Total
+        cell = r.createCell(6);
+        cell.setCellValue(ar[3]);
 
         inputStream.close();
 
