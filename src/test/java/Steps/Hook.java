@@ -2,7 +2,6 @@ package Steps;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
-import io.cucumber.java.Scenario;
 
 public class Hook {
     @Before
@@ -11,7 +10,7 @@ public class Hook {
     }
 
     @After
-    public void TearDownTest(Scenario scenario) {
+    public void TearDownTest() {
         //Quit driver after each scenario/example
         FlightStep.driver.quit();
         System.out.println("End Scenario");
