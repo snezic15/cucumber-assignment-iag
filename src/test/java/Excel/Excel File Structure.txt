@@ -1,3 +1,4 @@
+**Input**
 Flight Type: 'Oneway', 'Return', 'Multi'
 Extra Paths (used for Multi only): 1-3
 From: Departure airport name 
@@ -14,3 +15,12 @@ Multi Destination 2 (used for Multi & when extra paths >= 2): Third departure ai
 Multi Destination Date 2 (used for Multi & when extra paths >= 2): Third date to depart in ddMMyyyy format
 Multi Destination 3 (used for Multi & when extra paths >= 3): Forth departure airport name 
 Multi Destination Date 3 (used for Multi & when extra paths >= 3): Forth date to depart in ddMMyyyy format
+
+**Output**
+Timestamp: Time and date of end of test run
+Error?: No error (N) or error (Y) present
+Message: Error message if 'Error?' is set to 'N'. Otherwise defaults to 'N/A'
+Base Fare: Base fare of flight if test run is successful
+Fee/Surcharge: Fees and surcharge of flight if test run is successful
+Addons: Addon price of flight if test run is successful
+Total Amount: Total fare of flight if test run is successful
