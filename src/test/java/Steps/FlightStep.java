@@ -14,6 +14,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -45,7 +46,7 @@ public class FlightStep {
 
         // Instantiate Goibibo website class for page elements
         g = new Goibibo(PATH, row);
-        this.row = row + 1;
+        this.row = row;
     }
 
     @And("an option from is selected for One-Way, Roundtrip or Multi-City")
@@ -63,6 +64,8 @@ public class FlightStep {
             case "Multi":
                 driver.findElement(By.id("multiCity")).click();
                 style = 3;
+            default:
+                throw new GoibiboException("Flight type not found", PATH, row);
         }
     }
 
@@ -78,12 +81,10 @@ public class FlightStep {
 
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("react-autosuggest-1-suggestion--0")));
-        }
-        catch (TimeoutException e) {
+            driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
+        } catch (TimeoutException e) {
             throw new GoibiboException("Autosuggest element for departure location not found. Timeout", PATH, row);
         }
-
-        driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
 
         if (!driver.findElement(By.id("gosuggest_inputSrc")).getAttribute("value").contains(g.getDepartureLocation()))
             throw new GoibiboException("Departure location does not match dataset", PATH, row);
@@ -97,12 +98,10 @@ public class FlightStep {
 
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("react-autosuggest-1-suggestion--0")));
-            }
-            catch (TimeoutException e) {
+                driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
+            } catch (TimeoutException e) {
                 throw new GoibiboException("Autosuggest element for arrival location" + (i + 1) + " not found. Timeout", PATH, row);
             }
-
-            driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
 
             if (!driver.findElements(By.id("gosuggest_inputDest")).get(i).getAttribute("value").contains(g.getArrivalLocation(i)))
                 throw new GoibiboException("Arrival location " + (i + 1) + " does not match dataset", PATH, row);
@@ -139,14 +138,12 @@ public class FlightStep {
                     g.getDepartureDate(i).substring(4) + g.getDepartureDate(i).substring(2, 4) + g.getDepartureDate(i).substring(0, 2);
 
             //Calculate number of clicks for month/year change. If Multi, use previous requested date. If
-            // oneway/return, use current date
+            //oneway/return, use current date
             if (i > 0) {
-                diff = Integer.parseInt(month) - Integer.parseInt(g.getDepartureDate(i-1).substring(2, 4));
-                diff = Integer.parseInt(year) > Integer.parseInt(g.getDepartureDate(i-1).substring(4)) ?
-                        diff + (12 * (Integer.parseInt(year) - Integer.parseInt(g.getDepartureDate(i-1).substring(4)))) : diff;
-            }
-
-            else {
+                diff = Integer.parseInt(month) - Integer.parseInt(g.getDepartureDate(i - 1).substring(2, 4));
+                diff = Integer.parseInt(year) > Integer.parseInt(g.getDepartureDate(i - 1).substring(4)) ?
+                        diff + (12 * (Integer.parseInt(year) - Integer.parseInt(g.getDepartureDate(i - 1).substring(4)))) : diff;
+            } else {
                 diff = Integer.parseInt(month) - Integer.parseInt(mm.format(now));
                 diff = Integer.parseInt(year) > Integer.parseInt(yy.format(now)) ? diff + (12 * (Integer.parseInt(year) - Integer.parseInt(yy.format(now)))) : diff;
             }
@@ -254,20 +251,15 @@ public class FlightStep {
 
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[3]/div[2]/span/span[1]/span")));
-            }
-            catch (TimeoutException e) {
+            } catch (TimeoutException e) {
                 throw new GoibiboException("Fare elements not found. Timeout", PATH, row);
             }
 
-            ar[0] =
-                    driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[1]/div[2]/span[1]/span")).getAttribute(
-                            "innerHTML");
-            ar[1] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[2]/div[2]/span[1]/span")).getAttribute("innerHTML");
-            ar[2] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[3]/div[2]/span/span[1]/span")).getAttribute("innerHTML");
-            ar[3] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[4]/span[2]/span/span/span")).getAttribute("innerHTML");
-        }
-
-        else {
+            ar[0] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[1]/div[2]/span[1]/span")).getText();
+            ar[1] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[2]/div[2]/span[1]/span")).getText();
+            ar[2] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[3]/div[2]/span/span[1]/span")).getText();
+            ar[3] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[4]/span[2]/span/span/span")).getText();
+        } else {
             if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
                 throw new GoibiboException("No flight results", PATH, row);
 
@@ -275,17 +267,14 @@ public class FlightStep {
 
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[2]/div[3]/div[2]/span")));
-            }
-            catch (TimeoutException e) {
+            } catch (TimeoutException e) {
                 throw new GoibiboException("Fare elements not found. Timeout", PATH, row);
             }
 
-            ar[0] =
-                    driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(0).getAttribute(
-                            "innerHTML");
-            ar[1] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(1).getAttribute("innerHTML");
-            ar[2] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(2).getAttribute("innerHTML");
-            ar[3] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[4]/div/div[2]/div/span")).getAttribute("innerHTML");
+            ar[0] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(0).getText();
+            ar[1] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(1).getText();
+            ar[2] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(2).getText();
+            ar[3] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[4]/div/div[2]/div/span")).getText();
         }
 
         // Once reached the end, print 'N' in Excel doc and output booking details

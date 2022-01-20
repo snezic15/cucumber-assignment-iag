@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -25,7 +26,7 @@ public class ExcelReader {
         FileInputStream inputStream = new FileInputStream(excelFilePath);
         Workbook workbook = WorkbookFactory.create(inputStream);
         Sheet sheet = workbook.getSheet(sheetName);
-        Row r = sheet.createRow(row);
+        Row r = sheet.createRow(row + 1);
 
         //Timestamp
         Cell cell = r.createCell(0);
@@ -52,7 +53,7 @@ public class ExcelReader {
         FileInputStream inputStream = new FileInputStream(excelFilePath);
         Workbook workbook = WorkbookFactory.create(inputStream);
         Sheet sheet = workbook.getSheet(sheetName);
-        Row r = sheet.createRow(row);
+        Row r = sheet.createRow(row + 1);
 
         //Timestamp
         Cell cell = r.createCell(0);
