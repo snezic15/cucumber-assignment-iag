@@ -14,7 +14,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -30,7 +29,7 @@ public class FlightStep {
     private int row;
 
     @Given("the user navigates to website homepage using data from spreadsheet row {int}")
-    public void theUserNavigatesToWebsiteHomepage(int row) throws IOException {
+    public void theUserNavigatesToWebsiteHomepage(int row) throws IOException, GoibiboException {
         // Instantiate driver and navigate to website
         System.setProperty("webdriver.chrome.driver", "src/test/java/Drivers/chromedriver.exe");
         driver = new ChromeDriver();
@@ -242,7 +241,7 @@ public class FlightStep {
 
     @Then("the flight selection page should be displayed")
     public void theFlightSelectionPageShouldBeDisplayed() throws IOException, GoibiboException {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         String[] ar = {"", "", "", ""};
 
         // Check for available flights. Select 'Book' button (different element ID for Multi and Oneway/Return types)

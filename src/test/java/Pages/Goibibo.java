@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class Goibibo {
@@ -18,7 +19,7 @@ public class Goibibo {
     private final int excelRow;
     private final String path;
 
-    public Goibibo(String path, int row) throws IOException {
+    public Goibibo(String path, int row) throws IOException, GoibiboException {
         ExcelReader reader = new ExcelReader();
         workbook = reader.getData(path, "Input");
         this.row = row;
@@ -33,6 +34,14 @@ public class Goibibo {
 //            }
 //        }
 //        System.out.println("End test dump***");
+
+        //Bootleg way to check if row is blank
+        try {
+            Objects.equals(workbook.get(row).get("Flight Type"), "");
+        }
+        catch (IndexOutOfBoundsException e) {
+            throw new GoibiboException("Row " + excelRow + " does not exist", path, excelRow);
+        }
     }
 
     //Getters
