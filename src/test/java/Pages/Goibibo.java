@@ -37,7 +37,8 @@ public class Goibibo {
 
         //Bootleg way to check if row is blank
         try {
-            Objects.equals(workbook.get(row).get("Flight Type"), "");
+            if(Objects.equals(workbook.get(row).get("Flight Type"), ""))
+                throw new GoibiboException("Row " + excelRow + " is empty", path, excelRow);
         }
         catch (IndexOutOfBoundsException e) {
             throw new GoibiboException("Row " + excelRow + " does not exist", path, excelRow);
