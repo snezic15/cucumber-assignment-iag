@@ -6,8 +6,9 @@ Feature: Access Goibibo and search through flights
     And a starting and final destination are entered
     And a departure and return date are selected
     And the user selects the number of travelers and travel class
-    And the user selects the Search button
+    When the user selects the Search button
     Then the flight selection page should be displayed
+    Then the fare details should be stored in the spreadsheet
     Examples:
       | Row |
       | 0   |
