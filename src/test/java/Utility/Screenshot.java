@@ -10,7 +10,7 @@ public class Screenshot {
     public static void screenCapture(int scenario) throws IOException, AWTException {
         Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
         BufferedImage capture = new Robot().createScreenCapture(screenRect);
-        File imageFile = new File("scenario" + scenario + ".bmp");
-        ImageIO.write(capture, "bmp", imageFile);
+        File imageFile = new File("Screenshots", "Scenario " + (scenario + 1) + ".jpeg");
+        ImageIO.write(capture, "jpeg", imageFile);
     }
 }

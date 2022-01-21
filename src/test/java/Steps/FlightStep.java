@@ -3,6 +3,7 @@ package Steps;
 import Pages.Goibibo;
 import Utility.ExcelReader;
 import Utility.GoibiboException;
+import Utility.Screenshot;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -15,6 +16,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.awt.*;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -237,7 +239,7 @@ public class FlightStep {
     }
 
     @Then("the flight selection page should be displayed")
-    public void theFlightSelectionPageShouldBeDisplayed() throws IOException, GoibiboException {
+    public void theFlightSelectionPageShouldBeDisplayed() throws IOException, GoibiboException, AWTException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         String[] ar = {"", "", "", ""};
 
@@ -280,5 +282,8 @@ public class FlightStep {
         // Once reached the end, print 'N' in Excel doc and output booking details
         ExcelReader ex = new ExcelReader();
         ex.setData(PATH, "Output", "N", "N/A", row, ar);
+
+        //Screenshot for data validation
+        Screenshot.screenCapture(row);
     }
 }
