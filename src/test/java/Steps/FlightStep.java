@@ -52,6 +52,10 @@ public class FlightStep {
         this.row = row;
     }
 
+    //Page object model
+    //Cucumber report Jenkins
+    //Test cases Jenkins
+
     @And("an option from is selected for One-Way, Roundtrip or Multi-City")
     public void anOptionFromIsSelectedForOneWayOrRoundtrip() throws GoibiboException, IOException {
         // Different cases for flight type
