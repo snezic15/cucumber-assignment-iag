@@ -5,7 +5,8 @@ import io.cucumber.junit.CucumberOptions;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = {"src/test/java/Features"}, plugin = {"json:target/cucumber.json"}
+        features = {"src/test/java/Features"},
+        plugin = ("json:target/cucumber-reports/CucumberTestReport.json"), monochrome = true
 )
 
 public class Runner {
