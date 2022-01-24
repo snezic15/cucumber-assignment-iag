@@ -19,7 +19,7 @@ Multi Destination Date 3 (used for Multi & when extra paths >= 3): Forth date to
 **Output**
 Timestamp: Time and date of end of test run
 Error?: No error (N) or error (Y) present
-Message: Error message if 'Error?' is set to 'N'. Otherwise defaults to 'N/A'
+Message: Error message if 'Error?' is set to 'N'. Otherwise, defaults to 'N/A'
 Base Fare: Base fare of flight if test run is successful
 Fee/Surcharge: Fees and surcharge of flight if test run is successful
 Addons: Addon price of flight if test run is successful

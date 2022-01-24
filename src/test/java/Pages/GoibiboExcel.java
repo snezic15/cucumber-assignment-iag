@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class Goibibo {
+public class GoibiboExcel {
     //Page elements
     private final List<Map<String, String>> workbook;
     private final int row;
     private final String path;
 
-    public Goibibo(String path, int row) throws IOException, GoibiboException {
+    public GoibiboExcel(String path, int row) throws IOException, GoibiboException {
         ExcelReader reader = new ExcelReader();
         workbook = reader.getData(path, "Input");
         this.row = row;
