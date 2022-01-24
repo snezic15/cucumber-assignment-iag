@@ -13,9 +13,11 @@ import java.time.Duration;
 
 public class GoibiboFlightSelection {
     private final WebDriver driver;
+    private final WebDriverWait wait;
 
     public GoibiboFlightSelection(WebDriver driver) {
         this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     public void flightSelection(String path, int row, int style) throws GoibiboException, IOException {
@@ -24,17 +26,18 @@ public class GoibiboFlightSelection {
             if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
                 throw new GoibiboException("No flight results", path, row);
 
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("orange")));
             driver.findElement(By.className("orange")).click();
         } else {
             if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
                 throw new GoibiboException("No flight results", path, row);
 
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")));
             driver.findElements(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")).get(0).click();
         }
     }
 
     public void fareDetails(String path, int row, int style) throws GoibiboException, IOException {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         String[] ar = {"", "", "", ""};
 
         // Xpath elements change for multi flights, so change what to search for depending on that
