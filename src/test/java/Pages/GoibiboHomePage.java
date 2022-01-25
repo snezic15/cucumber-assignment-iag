@@ -5,6 +5,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -20,24 +22,43 @@ public class GoibiboHomePage {
     private final GoibiboExcel g;
     private final WebDriver driver;
 
+    @FindBy (id = "oneway")
+    private WebElement oneway;
+
+    @FindBy (id = "roundTrip")
+    private WebElement returnTrip;
+
+    @FindBy (id = "multiCity")
+    private WebElement multi;
+
+    @FindBy (id = "gosuggest_inputSrc")
+    private WebElement input;
+
+    @FindBy (id = "react-autosuggest-1-suggestion--0")
+    private WebElement auto;
+
+    @FindBy (id = "react-autosuggest-1-suggestion--0")
+    private WebElement nextLoc;
+
     public GoibiboHomePage(WebDriver driver, GoibiboExcel g) {
         this.driver = driver;
         this.g = g;
+        PageFactory.initElements(driver, this);
     }
 
     public void flightOption(String path, int row) throws GoibiboException, IOException {
         // Different cases for flight type
         switch (g.getFlightType()) {
             case "Oneway":
-                driver.findElement(By.id("oneway")).click();
+                oneway.click();
                 style = 1;
                 return;
             case "Return":
-                driver.findElement(By.id("roundTrip")).click();
+                returnTrip.click();
                 style = 2;
                 return;
             case "Multi":
-                driver.findElement(By.id("multiCity")).click();
+               multi.click();
                 style = 3;
                 return;
             default:
@@ -52,16 +73,16 @@ public class GoibiboHomePage {
 
         // Find search element, fill with Excel data, select first result. Finally, check if selection contains
         // original input to ensure correct option selection
-        driver.findElement(By.id("gosuggest_inputSrc")).sendKeys(g.getDepartureLocation());
+        input.sendKeys(g.getDepartureLocation());
 
         try {
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("react-autosuggest-1-suggestion--0")));
-            driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
+            auto.click();
         } catch (TimeoutException e) {
             throw new GoibiboException("Autosuggest element for departure location not found. Timeout", path, row);
         }
 
-        if (!driver.findElement(By.id("gosuggest_inputSrc")).getAttribute("value").contains(g.getDepartureLocation()))
+        if (!input.getAttribute("value").contains(g.getDepartureLocation()))
             throw new GoibiboException("Departure location does not match dataset", path, row);
 
         if (style == 3 && Integer.parseInt(g.getMultiExtra()) > 0) y = Integer.parseInt(g.getMultiExtra());
@@ -73,7 +94,7 @@ public class GoibiboHomePage {
 
             try {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("react-autosuggest-1-suggestion--0")));
-                driver.findElement(By.id("react-autosuggest-1-suggestion--0")).click();
+                auto.click();
             } catch (TimeoutException e) {
                 throw new GoibiboException("Autosuggest element for arrival location" + (i + 1) + " not found. Timeout", path, row);
             }

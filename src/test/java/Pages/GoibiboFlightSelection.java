@@ -2,22 +2,51 @@ package Pages;
 
 import Utility.ExcelReader;
 import Utility.GoibiboException;
-import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 
 public class GoibiboFlightSelection {
     private final WebDriver driver;
-    private final WebDriverWait wait;
+
+    @FindBy(className = "srp-card-uistyles__BookButton-sc-3flq99-21")
+    private WebElement book;
+
+    @FindBy(id = "orange")
+    private WebElement bookMulti;
+
+    @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[1]/div[2]/span[1]/span")
+    private WebElement baseMulti;
+
+    @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[2]/div[2]/span[1]/span")
+    private WebElement feeMulti;
+
+    @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[3]/div[2]/span/span[1]/span")
+    private WebElement addonMulti;
+
+    @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[1]/div[4]/span[2]/span/span/span")
+    private WebElement totalMulti;
+
+    @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[2]/div[3]/div[2]/span")
+    WebElement addon;
+
+    @FindBy(xpath = "//span[@class='padR5 font18']")
+    List<WebElement> fare;
+
+    @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[4]/div/div[2]/div/span")
+    private WebElement total;
 
     public GoibiboFlightSelection(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        PageFactory.initElements(driver, this);
     }
 
     public void flightSelection(String path, int row, int style) throws GoibiboException, IOException {
@@ -26,43 +55,43 @@ public class GoibiboFlightSelection {
             if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
                 throw new GoibiboException("No flight results", path, row);
 
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("orange")));
-            driver.findElement(By.className("orange")).click();
+            new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(bookMulti));
+            bookMulti.click();
         } else {
             if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
                 throw new GoibiboException("No flight results", path, row);
 
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")));
-            driver.findElements(By.className("srp-card-uistyles__BookButton-sc-3flq99-21")).get(0).click();
+            new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(book));
+            book.click();
         }
     }
 
     public void fareDetails(String path, int row, int style) throws GoibiboException, IOException {
         String[] ar = {"", "", "", ""};
 
-        // Xpath elements change for multi flights, so change what to search for depending on that
+        // Xpath of elements change for multi flights, so change what to search for depending on that
         if (style == 3) {
             try {
-                wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[3]/div[2]/span/span[1]/span")));
+                new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(addonMulti));
             } catch (TimeoutException e) {
                 throw new GoibiboException("Fare elements not found. Timeout", path, row);
             }
 
-            ar[0] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[1]/div[2]/span[1]/span")).getText();
-            ar[1] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[2]/div[2]/span[1]/span")).getText();
-            ar[2] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[3]/div[2]/span/span[1]/span")).getText();
-            ar[3] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[1]/div[4]/span[2]/span/span/span")).getText();
+            ar[0] = baseMulti.getText();
+            ar[1] = feeMulti.getText();
+            ar[2] = addonMulti.getText();
+            ar[3] = totalMulti.getText();
         } else {
             try {
-                wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[2]/div[3]/div[2]/span")));
+                new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(addon));
             } catch (TimeoutException e) {
                 throw new GoibiboException("Fare elements not found. Timeout", path, row);
             }
 
-            ar[0] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(0).getText();
-            ar[1] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(1).getText();
-            ar[2] = driver.findElements(By.xpath("//span[@class='padR5 font18']")).get(2).getText();
-            ar[3] = driver.findElement(By.xpath("//*[@id=\"fareSummary\"]/div[1]/div[4]/div/div[2]/div/span")).getText();
+            ar[0] = fare.get(0).getText();
+            ar[1] = fare.get(1).getText();
+            ar[2] = fare.get(2).getText();
+            ar[3] = total.getText();
         }
 
         setFareExcel(path, row, ar);
