@@ -17,12 +17,14 @@ import java.util.List;
 public class GoibiboFlightSelection {
     private final WebDriver driver;
 
+    //Flight selection
     @FindBy(className = "srp-card-uistyles__BookButton-sc-3flq99-21")
     private WebElement book;
 
     @FindBy(id = "orange")
     private WebElement bookMulti;
 
+    //Fare details
     @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[1]/div[2]/div[1]/div[2]/span[1]/span")
     private WebElement baseMulti;
 
@@ -36,10 +38,10 @@ public class GoibiboFlightSelection {
     private WebElement totalMulti;
 
     @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[2]/div[3]/div[2]/span")
-    WebElement addon;
+    private WebElement addon;
 
     @FindBy(xpath = "//span[@class='padR5 font18']")
-    List<WebElement> fare;
+    private List<WebElement> fare;
 
     @FindBy(xpath = "//*[@id=\"fareSummary\"]/div[1]/div[4]/div/div[2]/div/span")
     private WebElement total;

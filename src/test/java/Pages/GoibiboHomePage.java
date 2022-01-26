@@ -16,29 +16,65 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class GoibiboHomePage {
     private int style;
     private final GoibiboExcel g;
     private final WebDriver driver;
 
-    @FindBy (id = "oneway")
+    //Option
+    @FindBy(id = "oneway")
     private WebElement oneway;
 
-    @FindBy (id = "roundTrip")
+    @FindBy(id = "roundTrip")
     private WebElement returnTrip;
 
-    @FindBy (id = "multiCity")
+    @FindBy(id = "multiCity")
     private WebElement multi;
 
-    @FindBy (id = "gosuggest_inputSrc")
+    //Location
+    @FindBy(id = "gosuggest_inputSrc")
     private WebElement input;
 
-    @FindBy (id = "react-autosuggest-1-suggestion--0")
+    @FindBy(id = "react-autosuggest-1-suggestion--0")
     private WebElement auto;
 
-    @FindBy (id = "react-autosuggest-1-suggestion--0")
+    @FindBy(className = "padL5")
     private WebElement nextLoc;
+
+    @FindBy(id = "gosuggest_inputDest")
+    private List<WebElement> loc;
+
+    //Dates
+    @FindBy(id = "departureCalendar")
+    private List<WebElement> depCal;
+
+    @FindBy(id = "returnCalendar")
+    private WebElement retCal;
+
+    @FindBy(css = "[aria-label='Next Month']")
+    private WebElement nextMonth;
+
+    //People/Class
+    @FindBy(id = "pax_label")
+    private WebElement tab;
+
+    @FindBy(id = "adultPaxBox")
+    private WebElement adult;
+
+    @FindBy(id = "childPaxBox")
+    private WebElement child;
+
+    @FindBy(id = "infantPaxBox")
+    private WebElement infant;
+
+    @FindBy(id = "gi_class")
+    private WebElement fliClass;
+
+    //Submit
+    @FindBy(id = "gi_search_btn")
+    private WebElement search;
 
     public GoibiboHomePage(WebDriver driver, GoibiboExcel g) {
         this.driver = driver;
@@ -58,7 +94,7 @@ public class GoibiboHomePage {
                 style = 2;
                 return;
             case "Multi":
-               multi.click();
+                multi.click();
                 style = 3;
                 return;
             default:
@@ -76,7 +112,7 @@ public class GoibiboHomePage {
         input.sendKeys(g.getDepartureLocation());
 
         try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("react-autosuggest-1-suggestion--0")));
+            new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(auto));
             auto.click();
         } catch (TimeoutException e) {
             throw new GoibiboException("Autosuggest element for departure location not found. Timeout", path, row);
@@ -88,18 +124,18 @@ public class GoibiboHomePage {
         if (style == 3 && Integer.parseInt(g.getMultiExtra()) > 0) y = Integer.parseInt(g.getMultiExtra());
 
         for (int i = 0; i <= y; i++) {
-            if (i > 1) driver.findElement(By.className("padL5")).click();
+            if (i > 1) nextLoc.click();
 
-            driver.findElements(By.id("gosuggest_inputDest")).get(i).sendKeys(g.getArrivalLocation(i));
+            loc.get(i).sendKeys(g.getArrivalLocation(i));
 
             try {
-                wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("react-autosuggest-1-suggestion--0")));
+                new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(auto));
                 auto.click();
             } catch (TimeoutException e) {
                 throw new GoibiboException("Autosuggest element for arrival location" + (i + 1) + " not found. Timeout", path, row);
             }
 
-            if (!driver.findElements(By.id("gosuggest_inputDest")).get(i).getAttribute("value").contains(g.getArrivalLocation(i)))
+            if (!loc.get(i).getAttribute("value").contains(g.getArrivalLocation(i)))
                 throw new GoibiboException("Arrival location " + (i + 1) + " does not match dataset", path, row);
         }
     }
@@ -122,7 +158,7 @@ public class GoibiboHomePage {
 
         //Loop for multi
         for (int i = 0; i <= y; i++) {
-            driver.findElements(By.id("departureCalendar")).get(i).click();
+            depCal.get(i).click();
 
             //Substring breakdown
             day = g.getDepartureDate(i).substring(0, 2);
@@ -144,7 +180,7 @@ public class GoibiboHomePage {
             //Perform clicks
             if (diff != 0) {
                 for (int x = 0; x < diff; x++) {
-                    driver.findElement(By.cssSelector("[aria-label='Next Month']")).click();
+                    nextMonth.click();
                 }
             }
 
@@ -153,7 +189,7 @@ public class GoibiboHomePage {
 
             //Validate input
             d = LocalDate.parse(year + "-" + month + "-" + day);
-            if (!driver.findElements(By.id("departureCalendar")).get(i).getAttribute("value").contains(day + " " + MMMM.format(d).substring(0, 3)))
+            if (!depCal.get(i).getAttribute("value").contains(day + " " + MMMM.format(d).substring(0, 3)))
                 throw new GoibiboException("Departure date " + (i + 1) + " does not match dataset", path, row);
         }
 
@@ -173,7 +209,7 @@ public class GoibiboHomePage {
         //Perform clicks
         if (diff != 0) {
             for (int i = 0; i < diff; i++) {
-                driver.findElement(By.cssSelector("[aria-label='Next Month']")).click();
+                nextMonth.click();
             }
         }
 
@@ -181,31 +217,31 @@ public class GoibiboHomePage {
 
         //Validate input
         d = LocalDate.parse(year + "-" + month + "-" + day);
-        if (!driver.findElement(By.id("returnCalendar")).getAttribute("value").contains(day + " " + MMMM.format(d).substring(0, 3)))
+        if (!retCal.getAttribute("value").contains(day + " " + MMMM.format(d).substring(0, 3)))
             throw new GoibiboException("Return date does not match dataset", path, row);
     }
 
     public void usersAndClass(String path, int row) throws GoibiboException, IOException {
-        driver.findElement(By.id("pax_label")).click();
+        tab.click();
 
         // Set traveller details
-        driver.findElement(By.id("adultPaxBox")).clear();
-        driver.findElement(By.id("adultPaxBox")).sendKeys(g.getAdults());
-        if (!driver.findElement(By.id("adultPaxBox")).getAttribute("value").contains(g.getAdults()))
+        adult.clear();
+        adult.sendKeys(g.getAdults());
+        if (!adult.getAttribute("value").contains(g.getAdults()))
             throw new GoibiboException("Number of adults does not match dataset", path, row);
 
-        driver.findElement(By.id("childPaxBox")).clear();
-        driver.findElement(By.id("childPaxBox")).sendKeys(g.getChildren());
-        if (!driver.findElement(By.id("childPaxBox")).getAttribute("value").contains(g.getChildren()))
+        child.clear();
+        child.sendKeys(g.getChildren());
+        if (!child.getAttribute("value").contains(g.getChildren()))
             throw new GoibiboException("Number of children does not match dataset", path, row);
 
-        driver.findElement(By.id("infantPaxBox")).clear();
-        driver.findElement(By.id("infantPaxBox")).sendKeys(g.getInfants());
-        if (!driver.findElement(By.id("infantPaxBox")).getAttribute("value").contains(g.getInfants()))
+        infant.clear();
+        infant.sendKeys(g.getInfants());
+        if (!infant.getAttribute("value").contains(g.getInfants()))
             throw new GoibiboException("Number of infants does not match dataset", path, row);
 
         // Select option from dropdown that matches data and assert correct option has been selected
-        Select s = new Select(driver.findElement(By.id("gi_class")));
+        Select s = new Select(fliClass);
         int i = 0;
         for (WebElement option : s.getOptions()) {
             if (option.getText().equalsIgnoreCase(g.getClassType())) break;
@@ -219,7 +255,7 @@ public class GoibiboHomePage {
 
     public void search(String path, int row) throws GoibiboException, IOException {
         // Search
-        driver.findElement(By.id("gi_search_btn")).click();
+        search.click();
 
         if (driver.getPageSource().contains("Please enter a valid"))
             throw new GoibiboException("All inputs are not filled adequately", path, row);

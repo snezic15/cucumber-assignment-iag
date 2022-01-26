@@ -75,7 +75,7 @@ public class FlightStep {
 
     @Then("the flight selection page should be displayed")
     public void theFlightSelectionPageShouldBeDisplayed() throws IOException, GoibiboException {
-       f.flightSelection(PATH, row, style);
+        f.flightSelection(PATH, row, style);
     }
 
     @Then("the fare details should be stored in the spreadsheet")
