@@ -10,7 +10,6 @@ public class GoibiboException extends Exception {
     }
 
     private void printErrorDoc(String path, int row, String msg) throws IOException {
-        ExcelReader reader = new ExcelReader();
-        reader.setData(path, "Output", "Y", msg, row);
+        ExcelReader.setData(path, "Output", "Y", msg, row);
     }
 }

@@ -16,7 +16,7 @@ public class ExcelReader {
         return readSheet(sheet);
     }
 
-    public void setData(String excelFilePath, String sheetName, String key, String value, int row) throws IOException {
+    public static void setData(String excelFilePath, String sheetName, String key, String value, int row) throws IOException {
         //For error printing
         FileInputStream inputStream = new FileInputStream(excelFilePath);
         Workbook workbook = WorkbookFactory.create(inputStream);
@@ -43,7 +43,8 @@ public class ExcelReader {
         os.close();
     }
 
-    public void setData(String excelFilePath, String sheetName, String key, String value, int row, String[] ar) throws IOException {
+    public static void setData(String excelFilePath, String sheetName, String key, String value, int row,
+                               String[] ar) throws IOException {
         //For successful scenario
         FileInputStream inputStream = new FileInputStream(excelFilePath);
         Workbook workbook = WorkbookFactory.create(inputStream);

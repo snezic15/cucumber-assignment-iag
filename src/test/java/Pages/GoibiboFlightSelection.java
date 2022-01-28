@@ -1,5 +1,6 @@
 package Pages;
 
+import Utility.ElementUtil;
 import Utility.ExcelReader;
 import Utility.GoibiboException;
 import org.openqa.selenium.TimeoutException;
@@ -7,11 +8,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 
 public class GoibiboFlightSelection {
@@ -21,7 +19,7 @@ public class GoibiboFlightSelection {
     @FindBy(className = "srp-card-uistyles__BookButton-sc-3flq99-21")
     private WebElement book;
 
-    @FindBy(id = "orange")
+    @FindBy(className = "orange")
     private WebElement bookMulti;
 
     //Fare details
@@ -54,17 +52,18 @@ public class GoibiboFlightSelection {
     public void flightSelection(String path, int row, int style) throws GoibiboException, IOException {
         // Check for available flights. Select 'Book' button (different element ID for Multi and Oneway/Return types)
         if (style == 3) {
-            if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
+            if (ElementUtil.contains(driver, "Sorry, we could not find any flights for this route"))
+                throw new GoibiboException("No flight results", path, row);
+            ElementUtil.wait(driver, bookMulti);
+            ElementUtil.click(bookMulti);
+        }
+
+        else {
+            if (ElementUtil.contains(driver, "Sorry, we could not find any flights for this route"))
                 throw new GoibiboException("No flight results", path, row);
 
-            new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(bookMulti));
-            bookMulti.click();
-        } else {
-            if (driver.getPageSource().contains("Sorry, we could not find any flights for this route"))
-                throw new GoibiboException("No flight results", path, row);
-
-            new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(book));
-            book.click();
+            ElementUtil.wait(driver, book);
+            ElementUtil.click(book);
         }
     }
 
@@ -74,7 +73,7 @@ public class GoibiboFlightSelection {
         // Xpath of elements change for multi flights, so change what to search for depending on that
         if (style == 3) {
             try {
-                new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(addonMulti));
+                ElementUtil.wait(driver, addonMulti);
             } catch (TimeoutException e) {
                 throw new GoibiboException("Fare elements not found. Timeout", path, row);
             }
@@ -83,9 +82,11 @@ public class GoibiboFlightSelection {
             ar[1] = feeMulti.getText();
             ar[2] = addonMulti.getText();
             ar[3] = totalMulti.getText();
-        } else {
+        }
+
+        else {
             try {
-                new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(addon));
+                ElementUtil.wait(driver, addon);
             } catch (TimeoutException e) {
                 throw new GoibiboException("Fare elements not found. Timeout", path, row);
             }
@@ -101,7 +102,6 @@ public class GoibiboFlightSelection {
 
     private void setFareExcel(String path, int row, String[] ar) throws IOException {
         // Once reached the end, print 'N' in Excel doc and output booking details
-        ExcelReader ex = new ExcelReader();
-        ex.setData(path, "Output", "N", "N/A", row, ar);
+        ExcelReader.setData(path, "Output", "N", "N/A", row, ar);
     }
 }

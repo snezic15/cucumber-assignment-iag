@@ -8,7 +8,8 @@ Feature: Access Goibibo and search through flights
     And the user selects the number of travelers and travel class
     When the user selects the Search button
     Then the flight selection page should be displayed
-    Then the fare details should be stored in the spreadsheet
+    And the fare details should be stored in the spreadsheet
+
     Examples:
       | Row |
       | 0   |

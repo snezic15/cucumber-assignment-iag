@@ -3,6 +3,7 @@ package Steps;
 import Pages.GoibiboExcel;
 import Pages.GoibiboFlightSelection;
 import Pages.GoibiboHomePage;
+import Utility.ElementUtil;
 import Utility.GoibiboException;
 import Utility.Screenshot;
 import io.cucumber.java.en.And;
@@ -34,7 +35,7 @@ public class FlightStep {
 
         // Website has two variants that completely change the layout/element ID's. Seems to be a coin-flip which
         // version loads by default so keep restarting scenario until the variant chosen to automate loads
-        if (driver.getPageSource().contains("FlightHomeNewWidget")) {
+        if (ElementUtil.contains(driver, "FlightHomeNewWidget")) {
             driver.quit();
             theUserNavigatesToWebsiteHomepage(row);
         }
@@ -78,7 +79,7 @@ public class FlightStep {
         f.flightSelection(PATH, row, style);
     }
 
-    @Then("the fare details should be stored in the spreadsheet")
+    @And("the fare details should be stored in the spreadsheet")
     public void theFareDetailsShouldBeStoredInTheSpreadsheet() throws IOException, GoibiboException, AWTException {
         f.fareDetails(PATH, row, style);
 

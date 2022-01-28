@@ -1,5 +1,6 @@
 package Pages;
 
+import Utility.ElementUtil;
 import Utility.GoibiboException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
@@ -7,12 +8,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -86,15 +84,15 @@ public class GoibiboHomePage {
         // Different cases for flight type
         switch (g.getFlightType()) {
             case "Oneway":
-                oneway.click();
+                ElementUtil.click(oneway);
                 style = 1;
                 return;
             case "Return":
-                returnTrip.click();
+                ElementUtil.click(returnTrip);
                 style = 2;
                 return;
             case "Multi":
-                multi.click();
+                ElementUtil.click(multi);
                 style = 3;
                 return;
             default:
@@ -107,11 +105,11 @@ public class GoibiboHomePage {
 
         // Find search element, fill with Excel data, select first result. Finally, check if selection contains
         // original input to ensure correct option selection
-        start.sendKeys(g.getDepartureLocation());
+        ElementUtil.sendKeys(start, g.getDepartureLocation());
 
         try {
-            new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(auto));
-            auto.click();
+            ElementUtil.wait(driver, auto);
+            ElementUtil.click(auto);
         } catch (TimeoutException e) {
             throw new GoibiboException("Autosuggest element for departure location not found. Timeout", path, row);
         }
@@ -122,13 +120,13 @@ public class GoibiboHomePage {
         if (style == 3 && Integer.parseInt(g.getMultiExtra()) > 0) y = Integer.parseInt(g.getMultiExtra());
 
         for (int i = 0; i <= y; i++) {
-            if (i > 1) nextLoc.click();
+            if (i > 1) ElementUtil.click(nextLoc);
 
-            dest.get(i).sendKeys(g.getArrivalLocation(i));
+            ElementUtil.sendKeys(dest.get(i), g.getArrivalLocation(i));
 
             try {
-                new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(auto));
-                auto.click();
+                ElementUtil.wait(driver, auto);
+                ElementUtil.click(auto);
             } catch (TimeoutException e) {
                 throw new GoibiboException("Autosuggest element for arrival location" + (i + 1) + " not found. Timeout", path, row);
             }
@@ -156,7 +154,7 @@ public class GoibiboHomePage {
 
         //Loop for multi
         for (int i = 0; i <= y; i++) {
-            depCal.get(i).click();
+            ElementUtil.click(depCal.get(i));
 
             //Substring breakdown
             day = g.getDepartureDate(i).substring(0, 2);
@@ -178,12 +176,12 @@ public class GoibiboHomePage {
             //Perform clicks
             if (diff != 0) {
                 for (int x = 0; x < diff; x++) {
-                    nextMonth.click();
+                    ElementUtil.click(nextMonth);
                 }
             }
 
             //Click requested date
-            driver.findElement(By.id("fare_" + depFare)).click();
+            ElementUtil.click(ElementUtil.element(driver, By.id("fare_" + depFare)));
 
             //Validate input
             d = LocalDate.parse(year + "-" + month + "-" + day);
@@ -207,11 +205,11 @@ public class GoibiboHomePage {
         //Perform clicks
         if (diff != 0) {
             for (int i = 0; i < diff; i++) {
-                nextMonth.click();
+                ElementUtil.click(nextMonth);
             }
         }
 
-        driver.findElement(By.id("fare_" + retFare)).click();
+        ElementUtil.click(ElementUtil.element(driver, By.id("fare_" + retFare)));
 
         //Validate input
         d = LocalDate.parse(year + "-" + month + "-" + day);
@@ -220,21 +218,21 @@ public class GoibiboHomePage {
     }
 
     public void usersAndClass(String path, int row) throws GoibiboException, IOException {
-        tab.click();
+        ElementUtil.click(tab);
 
         // Set traveller details
-        adult.clear();
-        adult.sendKeys(g.getAdults());
+        ElementUtil.clear(adult);
+        ElementUtil.sendKeys(adult, g.getAdults());
         if (!adult.getAttribute("value").contains(g.getAdults()))
             throw new GoibiboException("Number of adults does not match dataset", path, row);
 
-        child.clear();
-        child.sendKeys(g.getChildren());
+        ElementUtil.clear(child);
+        ElementUtil.sendKeys(child, g.getChildren());
         if (!child.getAttribute("value").contains(g.getChildren()))
             throw new GoibiboException("Number of children does not match dataset", path, row);
 
-        infant.clear();
-        infant.sendKeys(g.getInfants());
+        ElementUtil.clear(infant);
+        ElementUtil.sendKeys(infant, g.getInfants());
         if (!infant.getAttribute("value").contains(g.getInfants()))
             throw new GoibiboException("Number of infants does not match dataset", path, row);
 
@@ -253,9 +251,9 @@ public class GoibiboHomePage {
 
     public void search(String path, int row) throws GoibiboException, IOException {
         // Search
-        search.click();
+        ElementUtil.click(search);
 
-        if (driver.getPageSource().contains("Please enter a valid"))
+        if (ElementUtil.contains(driver, "Please enter a valid"))
             throw new GoibiboException("All inputs are not filled adequately", path, row);
     }
 
