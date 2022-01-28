@@ -13,4 +13,9 @@
       <module name="CucumberIAG" target="11" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="CucumberIAG" options="--add-modules java.base,java.datatransfer,java.desktop --add-exports java.datatransfer/java.awt=ALL-UNNAMED" />
+    </option>
+  </component>
 </project>

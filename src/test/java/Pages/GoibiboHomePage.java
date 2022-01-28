@@ -35,7 +35,7 @@ public class GoibiboHomePage {
 
     //Location
     @FindBy(id = "gosuggest_inputSrc")
-    private WebElement input;
+    private WebElement start;
 
     @FindBy(id = "react-autosuggest-1-suggestion--0")
     private WebElement auto;
@@ -44,7 +44,7 @@ public class GoibiboHomePage {
     private WebElement nextLoc;
 
     @FindBy(id = "gosuggest_inputDest")
-    private List<WebElement> loc;
+    private List<WebElement> dest;
 
     //Dates
     @FindBy(id = "departureCalendar")
@@ -103,13 +103,11 @@ public class GoibiboHomePage {
     }
 
     public void locations(String path, int row) throws GoibiboException, IOException {
-        // New wait variable for slow-loading elements (autocomplete takes time occasionally)
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         int y = 0;
 
         // Find search element, fill with Excel data, select first result. Finally, check if selection contains
         // original input to ensure correct option selection
-        input.sendKeys(g.getDepartureLocation());
+        start.sendKeys(g.getDepartureLocation());
 
         try {
             new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(auto));
@@ -118,7 +116,7 @@ public class GoibiboHomePage {
             throw new GoibiboException("Autosuggest element for departure location not found. Timeout", path, row);
         }
 
-        if (!input.getAttribute("value").contains(g.getDepartureLocation()))
+        if (!start.getAttribute("value").contains(g.getDepartureLocation()))
             throw new GoibiboException("Departure location does not match dataset", path, row);
 
         if (style == 3 && Integer.parseInt(g.getMultiExtra()) > 0) y = Integer.parseInt(g.getMultiExtra());
@@ -126,7 +124,7 @@ public class GoibiboHomePage {
         for (int i = 0; i <= y; i++) {
             if (i > 1) nextLoc.click();
 
-            loc.get(i).sendKeys(g.getArrivalLocation(i));
+            dest.get(i).sendKeys(g.getArrivalLocation(i));
 
             try {
                 new WebDriverWait(driver, Duration.ofSeconds(15)).until(ExpectedConditions.visibilityOf(auto));
@@ -135,7 +133,7 @@ public class GoibiboHomePage {
                 throw new GoibiboException("Autosuggest element for arrival location" + (i + 1) + " not found. Timeout", path, row);
             }
 
-            if (!loc.get(i).getAttribute("value").contains(g.getArrivalLocation(i)))
+            if (!dest.get(i).getAttribute("value").contains(g.getArrivalLocation(i)))
                 throw new GoibiboException("Arrival location " + (i + 1) + " does not match dataset", path, row);
         }
     }
