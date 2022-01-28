@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ExcelReader {
-    public List<Map<String, String>> getData(String excelFilePath, String sheetName) throws IOException {
+    public static List<Map<String, String>> getData(String excelFilePath, String sheetName) throws IOException {
         Sheet sheet = WorkbookFactory.create(new File(excelFilePath)).getSheet(sheetName);
         return readSheet(sheet);
     }
