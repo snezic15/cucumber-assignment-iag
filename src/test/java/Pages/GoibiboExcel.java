@@ -19,8 +19,7 @@ public class GoibiboExcel {
     private final String path;
 
     public GoibiboExcel(String path, int row) throws IOException, GoibiboException {
-        ExcelReader reader = new ExcelReader();
-        workbook = reader.getData(path, "Input");
+        workbook = ExcelReader.getData(path, "Input");
         this.row = row;
         this.path = path;
 
